@@ -7,7 +7,9 @@ const ROOM_W_MIN = 4;
 const ROOM_W_MAX = 12;
 const ROOM_H_MIN = 2;
 const ROOM_H_MAX = 10;
-const ROOM_COUNT = 10;
+// Bounds for the slider
+const ROOM_COUNT_MIN = 2;
+const ROOM_COUNT_MAX = 25;
 
 const WALL = 0 as const;
 const FLOOR = 1 as const;
@@ -33,11 +35,11 @@ function roomsOverlap(a: Room, b: Room): boolean {
   return !(a.x + a.w + 1 <= b.x || b.x + b.w + 1 <= a.x || a.y + a.h + 1 <= b.y || b.y + b.h + 1 <= a.y);
 }
 
-function placeRooms(grid: Grid): Room[] {
+function placeRooms(grid: Grid, roomCount: number): Room[] {
   const rooms: Room[] = [];
   let attempts = 0;
 
-  while (rooms.length < ROOM_COUNT && attempts < 200) {
+  while (rooms.length < roomCount && attempts < 200) {
     attempts++;
     const w = randInt(ROOM_W_MIN, ROOM_W_MAX);
     const h = randInt(ROOM_H_MIN, ROOM_H_MAX);
@@ -116,30 +118,29 @@ function connectRoomsWithCorridors(grid: Grid, rooms: Room[]) {
   }
 }
 
-function generateDungeon(): { grid: Grid; rooms: Room[] } {
+function generateDungeon(roomCount: number): { grid: Grid; rooms: Room[] } {
   const grid = createGrid(WIDTH, HEIGHT, WALL);
-
-  const rooms = placeRooms(grid);
-
+  const rooms = placeRooms(grid, roomCount);
   connectRoomsWithCorridors(grid, rooms);
-
   return { grid, rooms };
 }
 
 export default function App() {
   const [gridState, setGridState] = useState<Grid>(() => createGrid(WIDTH, HEIGHT));
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [roomCount, setRoomCount] = useState<number>(10); // initial value
 
   const pixelSize = 8;
 
+  // Generate on mount and whenever roomCount changes (live updates)
   useEffect(() => {
-    const { grid, rooms } = generateDungeon();
+    const { grid, rooms } = generateDungeon(roomCount);
     setGridState(grid.map((row) => row.slice()));
     setRooms(rooms);
-  }, []);
+  }, [roomCount]);
 
   function handleGenerate() {
-    const { grid, rooms } = generateDungeon();
+    const { grid, rooms } = generateDungeon(roomCount);
     setGridState(grid.map((row) => row.slice()));
     setRooms(rooms);
   }
@@ -162,13 +163,27 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col items-center gap-4 p-6 bg-neutral-100 text-neutral-900">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         <button
           onClick={handleGenerate}
           className="px-4 py-2 rounded-xl shadow border bg-white hover:shadow-md active:translate-y-px"
         >
           Generate Dungeon
         </button>
+
+        {/* Room count slider */}
+        <label className="flex items-center gap-3">
+          <span className="text-sm font-medium text-neutral-700">Rooms</span>
+          <input
+            type="range"
+            min={ROOM_COUNT_MIN}
+            max={ROOM_COUNT_MAX}
+            value={roomCount}
+            onChange={(e) => setRoomCount(parseInt(e.target.value, 10))}
+            className="w-56 accent-neutral-800 cursor-pointer"
+          />
+          <span className="w-8 text-right tabular-nums text-sm">{roomCount}</span>
+        </label>
       </div>
 
       <div style={gridStyle}>
