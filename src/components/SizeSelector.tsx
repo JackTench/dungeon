@@ -17,11 +17,11 @@ export default function SizeSelector({
 
   return (
     <div>
-      <p>Size:</p>
+      <p className="mb-1 text-sm font-medium text-gray-800">Size:</p>
       <select
         value={value}
         onChange={handleChange}
-        className="p-2 rounded border"
+        className="p-2 rounded border border-gray-300 bg-white text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <option value={32}>Small</option>
         <option value={64}>Medium</option>

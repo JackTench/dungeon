@@ -1,3 +1,4 @@
+import RoomCountSlider from "./components/RoomCountSlider";
 import SizeSelector from "./components/SizeSelector";
 
 export default function Page() {
@@ -6,6 +7,7 @@ export default function Page() {
       <div>
         <h2>Control Panel</h2>
         <SizeSelector />
+        <RoomCountSlider />
       </div>
       <div>
         <button>Generate</button>
